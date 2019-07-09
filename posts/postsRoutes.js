@@ -59,29 +59,50 @@ router.post('/', (req, res) => {
 	} else {
 		Post.insert({ title, contents })
 			.then(data => {
-        console.log(data);
-        Post.findById(data.id)
-				.then(data => {
-          console.log(data);
-          res.status(201).json(data);
-        })
+				Post.findById(data.id).then(data => {
+					res.status(201).json(data);
+				});
 			})
 			.catch(error => {
-				res
-					.status(500)
-					.json({
-						error: 'There was an error while saving the post to the database'
-					});
+				res.status(500).json({
+					error: 'There was an error while saving the post to the database'
+				});
 			});
 	}
 });
 
 router.post('/:id/comments', (req, res) => {
 	const id = req.params.id;
+	const text = req.body;
+
+	if (!text) {
+		res
+			.status(400)
+			.json({ errorMessage: 'Please provide text for the comment.' });
+	} else {
+		Post.insertComment(text).then();
+	}
 });
 
 router.delete('/:id', (req, res) => {
 	const id = req.params.id;
+	Post.remove(id)
+		.then(data => {
+			if (data === 0) {
+				res
+					.status(404)
+					.json({ message: 'The post with the specified ID does not exist.' });
+			} else {
+				res
+					.status(200)
+					.json({
+						message: `Post with ID of ${id} has been deleted successfully`
+					});
+			}
+		})
+		.catch(error => {
+			res.status(500).json({ error: 'The post could not be removed' });
+		});
 });
 
 router.put('/:id', (req, res) => {
