@@ -71,6 +71,7 @@ router.post('/', (req, res) => {
 	}
 });
 
+// Add new comment to a post
 router.post('/:id/comments', (req, res) => {
 	const id = req.params.id;
 	const comment = req.body;
@@ -83,7 +84,7 @@ router.post('/:id/comments', (req, res) => {
 		Post.findById(id)
 			.then(data => {
 				if (data.length > 0) {
-					Post.insertComment({text: comment.text, post_id: id}).then(data => {
+					Post.insertComment({ text: comment.text, post_id: id }).then(data => {
 						Post.findCommentById(data.id).then(data => {
 							res.status(201).json(data);
 						});
