@@ -73,9 +73,9 @@ router.post('/', (req, res) => {
 
 router.post('/:id/comments', (req, res) => {
 	const id = req.params.id;
-	const text = req.body;
+	const comment = req.body;
 
-	if (!text) {
+	if (!comment) {
 		res
 			.status(400)
 			.json({ errorMessage: 'Please provide text for the comment.' });
@@ -83,7 +83,7 @@ router.post('/:id/comments', (req, res) => {
 		Post.findById(id)
 			.then(data => {
 				if (data.length > 0) {
-					Post.insertComment(text).then(data => {
+					Post.insertComment({text: comment.text, post_id: id}).then(data => {
 						Post.findCommentById(data.id).then(data => {
 							res.status(201).json(data);
 						});
