@@ -36,6 +36,21 @@ router.get('/:id', (req, res) => {
 
 router.get('/:id/comments', (req, res) => {
   const id = req.params.id;
+  Post.findPostComments(id)
+  .then(data => {
+    if (data) {
+      res.status(200).json(data);
+    } else {
+      res
+        .status(404)
+        .json({ message: 'The post with the specified ID does not exist.' });
+    }
+  })
+  .catch(error => {
+    res
+      .status(500)
+      .json({ error: 'The comments could not be retrieved.' });
+  });
 })
 
 router.post('/', (req, res) => {});
