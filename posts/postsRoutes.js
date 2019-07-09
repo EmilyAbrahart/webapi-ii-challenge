@@ -80,10 +80,29 @@ router.post('/:id/comments', (req, res) => {
 			.status(400)
 			.json({ errorMessage: 'Please provide text for the comment.' });
 	} else {
-		Post.insertComment(text).then();
+		Post.findById(id)
+			.then(data => {
+				if (data.length > 0) {
+					Post.insertComment(text).then(data => {
+						Post.findCommentById(data.id).then(data => {
+							res.status(201).json(data);
+						});
+					});
+				} else {
+					res.status(404).json({
+						message: 'The post with the specified ID does not exist.'
+					});
+				}
+			})
+			.catch(error => {
+				res.status(500).json({
+					error: 'There was an error while saving the comment to the database'
+				});
+			});
 	}
 });
 
+// Delete a post
 router.delete('/:id', (req, res) => {
 	const id = req.params.id;
 	Post.remove(id)
@@ -103,6 +122,7 @@ router.delete('/:id', (req, res) => {
 		});
 });
 
+// Update a post
 router.put('/:id', (req, res) => {
 	const id = req.params.id;
 	const { title, contents } = req.body;
@@ -115,11 +135,9 @@ router.put('/:id', (req, res) => {
 		Post.update(id, { title, contents })
 			.then(data => {
 				if (data === 0) {
-					res
-						.status(404)
-						.json({
-							message: 'The post with the specified ID does not exist.'
-						});
+					res.status(404).json({
+						message: 'The post with the specified ID does not exist.'
+					});
 				} else {
 					Post.findById(id).then(data => {
 						res.status(201).json(data);
